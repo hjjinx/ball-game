@@ -4,133 +4,195 @@ import pygame
 pygame.init()
 
 #colors
-black=(0,0,0)
-white=(255,255,255)
-red=(255,0,0)
-green=(0,255,0)
-blue=(0,0,255)
-darkViolet=(148,0,211)
+BLACK = (0,0,0)
+WHITE = (255,255,255)
+RED = (255,0,0)
+GREEN = (0,255,0)
+BLUE = (0,0,255)
+DARKVIOLET = (148,0,211)
+BGCOLOR = BLACK
+BALL_COLOR = RED
+PROJECTILE_COLOR = DARKVIOLET
 
 #display
-displayWidth=1024
-displayHeight=600
-display=pygame.display.set_mode((displayWidth, displayHeight))
+displayWidth = 1024
+displayHeight = 600
+display = pygame.display.set_mode((displayWidth, displayHeight))
 pygame.display.set_caption('PHY')
-heart=pygame.image.load('heart.png')
-myfont=pygame.font.SysFont('Terminal', 18)
-clock=pygame.time.Clock()
-endTime=time.time()
-
+heart = pygame.image.load('heart.png')
+myfont = pygame.font.SysFont('Terminal', 18)
+clock = pygame.time.Clock()
+endTime = time.time()
+    
 #physics
-x,y=displayWidth/2,displayHeight/2
-ux, uy, ax, ay= 0, 0, 0, 0 # u means velocity, a  means acceleration
-yp1, up1, ap = 0, 50, 50 #p for projectile
-xp1,yp1,up1,ap1=[],0,50,50 #projectile variables. xp1 list coz multiple projectiles
-uc, ac = 20, 5 # c stands for the amount of change on key press
-score, lives=0,3
-touching=False
-running=True
+x, y = displayWidth/2, displayHeight/1.1
+ux, uy, ax, ay = 0, 0, 0, 0 # u means velocity, a  means acceleration
+uc, ac = 5, 5 # c stands for the amount of change on key press
+moveUp, moveDown, moveRight, moveLeft = False, False, False, False
+xp1, yp1, up1, ap = [], 0, 50, 50 #projectile variables. xp1 list coz multiple projectiles
+xl, yl, ul, al = random.randint(0, displayWidth - 50), 0, 50, 50
+score = 0
+lives = 3
+touching = False
+lifeFalling = False
 
 #misc
-projectile=pygame.Surface((10,20))
-projectile.fill(darkViolet)
+projectile = pygame.Surface((10,20))
+projectile.fill(PROJECTILE_COLOR)
+numOfProjectiles = 15
+inc_numOfProjectiles = 3
+projectileRect = projectile.get_rect()
 
 #adding random locations for projectiles to spawn in
-for _ in range(20):
+for _ in range(numOfProjectiles):
     xp1.append(random.randint(0,displayWidth))
 
-
-while running:
+playing = True
+while playing:
     #taking dt to be a small value which will depend on the processing power
-    startTime=time.time()
-    t=startTime-endTime
+    startTime = time.time()
+    t = startTime - endTime
 
     #changing the postions and velocities with time
-    ux+=ax*t
-    uy+=ay*t
-    x+=ux*t
-    y+=uy*t
-    up1+=ap*t
-    yp1+=up1*t
+    ux += ax * t
+    uy += ay * t
+    x += ux * t
+    y += uy * t
+    up1 += ap * t
+    yp1 += up1 * t
+    if lives <= 5: #spawning extra lives
+        ran=random.random()
+    if ran<0.01:
+       lifeFalling = True
+    if lifeFalling == True:
+        ul += al * t
+        yl += ul * t
+        if yl > displayHeight:
+            xl, yl, ul, al = random.randint(0, displayWidth - 50), 0, 50, 50
+            lifeFaling = False
 
-    endTime=time.time()
+    endTime = time.time()
     
     #checking for collision of ball with boundaries
-    if x<0:
-        x=0
-        ux=-ux/3
-    if x>displayWidth:
-        x=displayWidth
-        ux=-ux/3
-    if y<0:
-        y=0
-        uy=-uy/3
-    if y>displayHeight:
-        y=displayHeight
-        uy=-uy/3
-    
-    
+    if x < 0:
+        x = 0
+        ux = -ux / 3
+    if x > displayWidth:
+        x = displayWidth
+        ux = -ux / 3
+    if y < 0:
+        y = 0
+        uy = -uy / 3
+    if y > displayHeight:
+        y = displayHeight
+        uy = -uy / 3
+
+    #Checking for key press
     for ev in pygame.event.get():
         if ev.type == pygame.QUIT:
-            running=False
+            playing = False
         elif ev.type == pygame.KEYDOWN: #acts on pressing and not on holding key
             if ev.key == pygame.K_UP:
-                ay-=ac
-                uy-=uc
+                moveUp = True
             if ev.key == pygame.K_DOWN:
-                ay+=ac
-                uy+=uc
+                moveDown = True
             if ev.key == pygame.K_LEFT:
-                ax-=ac
-                ux-=uc
+                moveLeft = True
             if ev.key == pygame.K_RIGHT:
-                ax+=ac
-                ux+=uc
+                moveRight = True
         elif ev.type == pygame.KEYUP:
+##            if ev.key == pygame.K_UP or ev.key == pygame.K_DOWN:
+##                moveUp, moveDown = False, False
+##            if ev.key == pygame.K_LEFT or ev.key == pygame.K_RIGHT:
+##                moveLeft, moveRight = False, False
             if ev.key == pygame.K_UP:
-                ay=0
+                moveUp = False
+                ay = 0
             if ev.key == pygame.K_DOWN:
-                ay=0
+                moveDown = False
+                ay = 0
             if ev.key == pygame.K_LEFT:
-                ax=0
+                moveLeft = False
+                ax = 0
             if ev.key == pygame.K_RIGHT:
-                ax=0
+                moveRight = False
+                ax = 0
+    if moveUp == True:
+        if uy > 0:
+            ay -= ac * 2
+            uy -= uc * 2
+        else:
+            ay -= ac
+            uy -= uc
+    if moveDown == True:
+        if uy < 0:
+            ay += ac * 2
+            uy += uc * 2
+        else:
+            ay += ac
+            uy += uc
+    if moveLeft == True:
+        if ux > 0:
+            ax -= ac * 2
+            ux -= uc * 2
+        else:
+            ax -= ac
+            ux -= uc
+    if moveRight == True:
+        if ux < 0:
+            ax += ac * 2
+            ux += uc * 2
+        else:
+            ax += ac
+            ux += uc
 
     #condition for when the projectile crosses the screen
-    if yp1>displayHeight:
-        yp1=0
-        up1=3*up1/5
-        ap+=5
-        xp1=[]
-        score+=1
-        for _ in range(20):
+    if yp1 > displayHeight:
+        yp1 = 0
+        up1 = 3 * up1 / 5
+        ap += 5
+        xp1 = []
+        score += 1
+        if score % 5 == 0:
+            numOfProjectiles += inc_numOfProjectiles 
+        for _ in range(numOfProjectiles):
             xp1.append(random.randint(0,displayWidth))
 
-    #checking for collision between ball and projectile
-    for g in range(20):
-        if x>xp1[g]-10 and x<10+xp1[g] and y>yp1-15 and y<yp1+15:
-            touching=True
-            xp1[g]=1050
+    #checking for collision between ball and project
+    if y > yp1 and y < yp1 + 30:
+        g = 0
+        while g < numOfProjectiles:
+            if x > xp1[g] - 10 and x < xp1[g] + 20:
+                touching = True
+                del xp1[g]
+                numOfProjectiles -= 1
+            g += 1
     if touching:
-        if lives>1:
-            lives-=1
-            touching=False
+        if lives > 1:
+            lives -= 1
+            touching = False
         else:
-            running=False
+            playing = False
 
+    #checking for collision between ball and live
+    if x > xl and x < xl + 20 and y < yl + 20 and y > yl:
+        lives += 1
+        xl, yl, ul, al = random.randint(0, displayWidth - 50), 0, 50, 50
+        lifeFalling = False
+        
     #displaying
-    display.fill(black)
+    display.fill(BGCOLOR)
     for g in range(lives): #displaying the lives as hearts
-        display.blit(heart, (950+g*25,25))
-    for g in range(20): #displaying the same projectile at 20 places
+        display.blit(heart, (displayWidth - 50 - g * 25,25))
+    for g in range(numOfProjectiles): #displaying the same projectile at 20 places
         display.blit(projectile, (xp1[g], yp1))
-    textDisp=myfont.render('SCORE: %s'%(score),False,white)
-    pygame.draw.circle(display, red, (int(x),int(y)), 10, 0) #displaying the ball
-    display.blit(textDisp,(950,50)) #displaying the score
+    if lifeFalling == True:
+        display.blit(heart, [xl, yl])
+    pygame.draw.circle(display, BALL_COLOR, (int(x),int(y)), 10, 0) #displaying the ball
+    textDisp = myfont.render('SCORE: %s'%(score),False,WHITE)
+    display.blit(textDisp,(displayWidth - 100, 50)) #displaying the score
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(120)
 
 pygame.quit()
-quit()
-
-  
+print("You lost :(. Your score was " + str(score))
