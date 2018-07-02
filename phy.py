@@ -23,11 +23,11 @@ heart = pygame.image.load('heart.png')
 myfont = pygame.font.SysFont('Terminal', 18)
 clock = pygame.time.Clock()
 endTime = time.time()
-
+    
 #physics
 x, y = displayWidth/2, displayHeight/1.1
 ux, uy, ax, ay = 0, 0, 0, 0 # u means velocity, a  means acceleration
-uc, ac = 10, 2 # c stands for the amount of change on key press
+uc, ac = 5, 5 # c stands for the amount of change on key press
 moveUp, moveDown, moveRight, moveLeft = False, False, False, False
 xp1, yp1, up1, ap = [], 0, 50, 50 #projectile variables. xp1 list coz multiple projectiles
 xl, yl, ul, al = random.randint(0, displayWidth - 50), 0, 50, 50
@@ -40,7 +40,8 @@ lifeFalling = False
 projectile = pygame.Surface((10,20))
 projectile.fill(PROJECTILE_COLOR)
 numOfProjectiles = 15
-inc_numOfProjectiles = 3 
+inc_numOfProjectiles = 3
+projectileRect = projectile.get_rect()
 
 #adding random locations for projectiles to spawn in
 for _ in range(numOfProjectiles):
@@ -106,33 +107,49 @@ while playing:
 ##                moveLeft, moveRight = False, False
             if ev.key == pygame.K_UP:
                 moveUp = False
+                ay = 0
             if ev.key == pygame.K_DOWN:
                 moveDown = False
+                ay = 0
             if ev.key == pygame.K_LEFT:
                 moveLeft = False
+                ax = 0
             if ev.key == pygame.K_RIGHT:
                 moveRight = False
+                ax = 0
     if moveUp == True:
-        ay -= ac
-        uy -= uc
-##        moveUp = False
+        if uy > 0:
+            ay -= ac * 2
+            uy -= uc * 2
+        else:
+            ay -= ac
+            uy -= uc
     if moveDown == True:
-        ay += ac
-        uy += uc
-##        moveDown = False
+        if uy < 0:
+            ay += ac * 2
+            uy += uc * 2
+        else:
+            ay += ac
+            uy += uc
     if moveLeft == True:
-        ax -= ac
-        ux -= uc
-##        moveLeft = False
+        if ux > 0:
+            ax -= ac * 2
+            ux -= uc * 2
+        else:
+            ax -= ac
+            ux -= uc
     if moveRight == True:
-        ax += ac
-        ux += uc
-##        moveRight = False
+        if ux < 0:
+            ax += ac * 2
+            ux += uc * 2
+        else:
+            ax += ac
+            ux += uc
 
     #condition for when the projectile crosses the screen
     if yp1 > displayHeight:
         yp1 = 0
-        up1 = 4 * up1 / 5
+        up1 = 3 * up1 / 5
         ap += 5
         xp1 = []
         score += 1
@@ -166,16 +183,16 @@ while playing:
     #displaying
     display.fill(BGCOLOR)
     for g in range(lives): #displaying the lives as hearts
-        display.blit(heart, (1000 - g * 25,25))
+        display.blit(heart, (displayWidth - 50 - g * 25,25))
     for g in range(numOfProjectiles): #displaying the same projectile at 20 places
         display.blit(projectile, (xp1[g], yp1))
     if lifeFalling == True:
-        display.blit(heart, (xl, yl))
+        display.blit(heart, [xl, yl])
     pygame.draw.circle(display, BALL_COLOR, (int(x),int(y)), 10, 0) #displaying the ball
     textDisp = myfont.render('SCORE: %s'%(score),False,WHITE)
-    display.blit(textDisp,(960, 50)) #displaying the score
+    display.blit(textDisp,(displayWidth - 100, 50)) #displaying the score
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(120)
 
 pygame.quit()
 print("You lost :(. Your score was " + str(score))
