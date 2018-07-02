@@ -8,4 +8,5 @@ Coming to this game, I created this with little amount of knowledge I had of pyt
 I am currently learning to use classes and I also tried recreating this game with Classes but was unable to do so.
 If anyone is interested, please do that.
 
+0.2 - Added extra life collecting feature, holding key button and controlling the ball easier
 
