@@ -10,3 +10,5 @@ If anyone is interested, please do that.
 
 0.2 - Added extra life collecting feature, holding key button and controlling the ball easier
 
+0.3 - Added another stage to this game in which a wall with a small opening appears instead of projectiles.
+
